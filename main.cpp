@@ -1,9 +1,8 @@
 #include <iostream>
-#include "network/include/http_client.h"
-#include "network/include/http_request.h"
+#include "http_client.h"
 
 int main() {
-    auto client = koala::network::createDefaultHttpClient();
+    const auto client = koala::network::createDefaultHttpClient();
 
     koala::network::HttpRequest req;
     req.method = "GET";
