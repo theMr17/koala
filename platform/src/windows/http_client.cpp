@@ -36,7 +36,7 @@ namespace koala::platform::windows {
             }
 
             // Parse URL into host + path
-            URL_COMPONENTS components = {0};
+            URL_COMPONENTS components = {};
             components.dwStructSize = sizeof(components);
             std::wstring wurl = core::util::utf8ToWide(request.url);
             components.dwHostNameLength = (DWORD) -1;

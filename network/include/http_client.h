@@ -2,7 +2,6 @@
 #include "http_request.h"
 #include "http_response.h"
 #include <memory>
-#include <system_error>
 
 namespace koala::network {
     /**
