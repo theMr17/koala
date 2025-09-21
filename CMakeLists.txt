@@ -6,14 +6,8 @@ set(CMAKE_CXX_STANDARD 20)
 # Add subdirectories
 add_subdirectory(network)
 add_subdirectory(platform)
+add_subdirectory(app)
 
-# Main executable
-add_executable(koala main.cpp)
-
-# Link the libraries
-target_link_libraries(koala PRIVATE network platform)
-
-# Add includes for all modules
-target_include_directories(koala PRIVATE
-        ${CMAKE_SOURCE_DIR}/network/include
-)
+# Make "app" the default startup target
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT app)  # For Visual Studio
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY DEFAULT_TARGET app)      # For Ninja/Make (CMake ≥3.26)
