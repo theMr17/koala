@@ -5,7 +5,6 @@ set(CMAKE_CXX_STANDARD 20)
 
 # Add subdirectories
 add_subdirectory(network)
-add_subdirectory(platform)
 add_subdirectory(app)
 
 # Make "app" the default startup target

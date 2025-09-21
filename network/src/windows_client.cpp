@@ -120,9 +120,8 @@ namespace koala::platform::windows {
             return {response, {}}; // success → no error
         }
     };
-} // namespace koala::platform::windows
+}
 
-// Factory function (declared in http_client.h)
 namespace koala::network {
     std::unique_ptr<IHttpClient> createDefaultHttpClient() {
         return std::make_unique<platform::windows::WinHttpClient>();
