@@ -1,6 +1,12 @@
-cmake_minimum_required(VERSION 4.0)
-project(koala)
+cmake_minimum_required(VERSION 3.31)
+project(koala_platform)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(koala main.cpp)
+# Add subdirectories
+add_subdirectory(network)
+add_subdirectory(app)
+
+# Make "app" the default startup target
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT app)  # For Visual Studio
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY DEFAULT_TARGET app)      # For Ninja/Make (CMake ≥3.26)
