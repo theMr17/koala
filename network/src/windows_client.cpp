@@ -9,14 +9,17 @@ namespace koala::platform::windows {
         std::string result;
         DWORD dwSize = 0;
         do {
-            if (!WinHttpQueryDataAvailable(hRequest, &dwSize)) break;
-            if (dwSize == 0) break;
+            if (!WinHttpQueryDataAvailable(hRequest, &dwSize))
+                break;
+            if (dwSize == 0)
+                break;
 
             std::vector<char> buffer(dwSize);
             DWORD dwDownloaded = 0;
             if (WinHttpReadData(hRequest, buffer.data(), dwSize, &dwDownloaded) && dwDownloaded > 0) {
                 result.append(buffer.data(), dwDownloaded);
-            } else break;
+            } else
+                break;
         } while (dwSize > 0);
         return result;
     }
@@ -27,10 +30,8 @@ namespace koala::platform::windows {
         std::pair<network::HttpResponse, std::error_code> send(const network::HttpRequest &request) override {
             network::HttpResponse response;
 
-            const HINTERNET hSession = WinHttpOpen(L"Koala/0.1",
-                                             WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY,
-                                             WINHTTP_NO_PROXY_NAME,
-                                             WINHTTP_NO_PROXY_BYPASS, 0);
+            const HINTERNET hSession = WinHttpOpen(L"Koala/0.1", WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY,
+                                                   WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
             if (!hSession) {
                 return {{}, std::error_code(GetLastError(), std::system_category())};
             }
@@ -58,11 +59,8 @@ namespace koala::platform::windows {
 
             std::wstring method = core::util::utf8ToWide(request.method);
             HINTERNET hRequest = WinHttpOpenRequest(
-                hConnect, method.c_str(), path.c_str(),
-                nullptr, WINHTTP_NO_REFERER,
-                WINHTTP_DEFAULT_ACCEPT_TYPES,
-                (components.nScheme == INTERNET_SCHEME_HTTPS) ? WINHTTP_FLAG_SECURE : 0
-            );
+                    hConnect, method.c_str(), path.c_str(), nullptr, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES,
+                    (components.nScheme == INTERNET_SCHEME_HTTPS) ? WINHTTP_FLAG_SECURE : 0);
             if (!hRequest) {
                 WinHttpCloseHandle(hConnect);
                 WinHttpCloseHandle(hSession);
@@ -76,14 +74,11 @@ namespace koala::platform::windows {
             }
 
             BOOL bResult = WinHttpSendRequest(
-                hRequest,
-                headers.empty() ? WINHTTP_NO_ADDITIONAL_HEADERS : headers.c_str(),
-                headers.empty() ? 0 : (DWORD) headers.size(),
-                request.body.empty() ? WINHTTP_NO_REQUEST_DATA : (LPVOID) request.body.c_str(),
-                (DWORD) request.body.size(),
-                (DWORD) request.body.size(),
-                0
-            );
+                    hRequest, headers.empty() ? WINHTTP_NO_ADDITIONAL_HEADERS : headers.c_str(),
+                    headers.empty() ? 0 : (DWORD) headers.size(),
+                    request.body.empty() ? WINHTTP_NO_REQUEST_DATA
+                                         : reinterpret_cast<LPVOID>(const_cast<char *>(request.body.data())),
+                    request.body.size(), request.body.size(), 0);
 
             if (!bResult) {
                 WinHttpCloseHandle(hRequest);
@@ -102,10 +97,8 @@ namespace koala::platform::windows {
             // Get status code
             DWORD status = 0;
             DWORD sz = sizeof(status);
-            if (WinHttpQueryHeaders(hRequest,
-                                    WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER,
-                                    WINHTTP_HEADER_NAME_BY_INDEX,
-                                    &status, &sz, WINHTTP_NO_HEADER_INDEX)) {
+            if (WinHttpQueryHeaders(hRequest, WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER,
+                                    WINHTTP_HEADER_NAME_BY_INDEX, &status, &sz, WINHTTP_NO_HEADER_INDEX)) {
                 response.status_code = static_cast<int>(status);
             }
 
@@ -120,10 +113,10 @@ namespace koala::platform::windows {
             return {response, {}}; // success → no error
         }
     };
-}
+} // namespace koala::platform::windows
 
 namespace koala::network {
     std::unique_ptr<IHttpClient> createDefaultHttpClient() {
         return std::make_unique<platform::windows::WinHttpClient>();
     }
-}
+} // namespace koala::network

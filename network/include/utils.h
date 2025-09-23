@@ -1,9 +1,10 @@
 #pragma once
-#include <string>
-#include <optional>
-#include <map>
 #include <algorithm>
+#include <cctype>
 #include <cstdint>
+#include <map>
+#include <optional>
+#include <string>
 
 namespace koala::core::util {
     /**
@@ -63,12 +64,12 @@ namespace koala::core::util {
         if (url.size() > host_end && url[host_end] == ':') {
             size_t port_start = host_end + 1;
             size_t port_end = url.find_first_of("/?", port_start);
-            std::string port_str = (port_end == std::string::npos)
-                                       ? url.substr(port_start)
-                                       : url.substr(port_start, port_end - port_start);
+            std::string port_str = (port_end == std::string::npos) ? url.substr(port_start)
+                                                                   : url.substr(port_start, port_end - port_start);
             try {
                 int p = std::stoi(port_str);
-                if (p > 0 && p <= 65535) out.port = static_cast<uint16_t>(p);
+                if (p > 0 && p <= 65535)
+                    out.port = static_cast<uint16_t>(p);
             } catch (...) {
                 return std::nullopt;
             }
@@ -88,15 +89,15 @@ namespace koala::core::util {
     /**
      * Case-insensitive header map lookup helper.
      */
-    inline std::optional<std::string> findHeaderCaseInsensitive(
-        const std::map<std::string, std::string> &headers,
-        const std::string &name) {
+    inline std::optional<std::string> findHeaderCaseInsensitive(const std::map<std::string, std::string> &headers,
+                                                                const std::string &name) {
         auto lname = name;
         std::ranges::transform(lname, lname.begin(), [](unsigned char c) { return std::tolower(c); });
         for (const auto &[k, v]: headers) {
             auto kk = k;
             std::ranges::transform(kk, kk.begin(), [](unsigned char c) { return std::tolower(c); });
-            if (kk == lname) return v;
+            if (kk == lname)
+                return v;
         }
         return std::nullopt;
     }
@@ -107,11 +108,12 @@ namespace koala::core::util {
      * Convert UTF-8 std::string to std::wstring (Windows helper).
      */
     inline std::wstring utf8ToWide(const std::string &s) {
-        if (s.empty()) return {};
+        if (s.empty())
+            return {};
         int n = MultiByteToWideChar(CP_UTF8, 0, s.c_str(), static_cast<int>(s.size()), nullptr, 0);
         std::wstring out(n, 0);
         MultiByteToWideChar(CP_UTF8, 0, s.c_str(), static_cast<int>(s.size()), &out[0], n);
         return out;
     }
 #endif
-}
+} // namespace koala::core::util

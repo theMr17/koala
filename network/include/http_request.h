@@ -2,6 +2,7 @@
 #include <string>
 #include <map>
 #include <optional>
+#include "utils.h"
 
 namespace koala::network {
     /**
@@ -11,7 +12,7 @@ namespace koala::network {
     struct HttpRequest {
         std::string method = "GET"; // "GET", "POST", "PUT", "DELETE", etc.
         std::string url; // full URL (e.g. "https://example.com/api/1")
-        std::map<std::string, std::string> headers; // header-name -> header-value
+        std::map<std::string, std::string> headers; // header-name -> header-value (header name matching is case-insensitive)
         std::string body; // request body (for POST/PUT)
         std::optional<int> timeout_ms; // optional timeout in milliseconds
 
@@ -20,10 +21,9 @@ namespace koala::network {
             headers[name] = value;
         }
 
+        // Case-insensitive lookup per HTTP spec
         std::optional<std::string> getHeader(const std::string& name) const {
-            const auto it = headers.find(name);
-            if (it == headers.end()) return std::nullopt;
-            return it->second;
+            return koala::core::util::findHeaderCaseInsensitive(headers, name);
         }
     };
 }

@@ -1,7 +1,9 @@
 #pragma once
+#include <memory>
+#include <system_error>
+#include <utility>
 #include "http_request.h"
 #include "http_response.h"
-#include <memory>
 
 namespace koala::network {
     /**
@@ -18,13 +20,14 @@ namespace koala::network {
          * Send a request synchronously and return the response.
          * On failure, returns a non-empty std::error_code.
          */
-        virtual std::pair<HttpResponse, std::error_code> send(const HttpRequest& req) = 0;
+        virtual std::pair<HttpResponse, std::error_code> send(const HttpRequest &req) = 0;
     };
 
     /**
      * Create the platform-default client.
-     * Implementation should live in platform/ (e.g. platform/windows/http_client_win.cpp)
+     * Implementation should live in a platform-specific .cpp
+     * (e.g. network/src/windows_client.cpp on Windows)
      * so public headers don't need platform-specific includes.
      */
     std::unique_ptr<IHttpClient> createDefaultHttpClient();
-}
+} 
