@@ -1,6 +1,10 @@
 #include <iostream>
 #include "http_client.h"
 
+namespace koala::core {
+    int runWindowDemo();
+}
+
 int main() {
     const auto client = koala::network::createDefaultHttpClient();
 
@@ -17,5 +21,6 @@ int main() {
 
     std::cout << "Status: " << resp.status_code << "\n";
     std::cout << "Body:\n" << resp.body << "\n";
-    return 0;
+
+    return koala::core::runWindowDemo();
 }
