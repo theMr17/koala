@@ -1,4 +1,6 @@
 #include <iostream>
+
+#include "application.h"
 #include "http_client.h"
 
 namespace koala::core {
@@ -22,5 +24,7 @@ int main() {
     std::cout << "Status: " << resp.status_code << "\n";
     std::cout << "Body:\n" << resp.body << "\n";
 
-    return koala::core::runWindowDemo();
+    koala::core::Application application;
+    application.Run();
+    return 0;
 }
