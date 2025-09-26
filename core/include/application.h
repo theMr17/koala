@@ -26,7 +26,4 @@ namespace koala::core {
         LayerStack m_LayerStack;
         bool m_Running = true;
     };
-
-
-    Application *CreateApplication();
 } // namespace koala::core

@@ -17,7 +17,6 @@ namespace koala::core {
         std::cerr << "GLFW Error " << error << ": " << description << "\n";
     }
 
-
     Application::Application() {
         glfwSetErrorCallback(glfwErrorCallback);
         if (!glfwInit()) {
@@ -72,10 +71,24 @@ namespace koala::core {
     }
 
     void Application::Run() {
+        double lastTime = glfwGetTime();
+
         while (m_Running) {
             PollAndDispatchEvents();
 
+            double now = glfwGetTime();
+            float dt = static_cast<float>(now - lastTime);
+            lastTime = now;
+
+            for (auto &layer: m_LayerStack) {
+                layer->OnUpdate(dt);
+            }
+
             BeginImGuiFrame();
+
+            for (auto &layer: m_LayerStack) {
+                layer->OnRender();
+            }
 
             ImGui::ShowDemoWindow();
 

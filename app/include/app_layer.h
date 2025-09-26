@@ -2,7 +2,7 @@
 #include "layer.h"
 
 
-class AppLayer : koala::core::Layer {
+class AppLayer : public koala::core::Layer {
 public:
     void OnAttach() override;
     void OnDetach() override;

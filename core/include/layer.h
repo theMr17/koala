@@ -1,5 +1,7 @@
 #pragma once
 #include <string>
+#include <utility>
+
 namespace koala::core {
     class Event;
 
