@@ -48,11 +48,13 @@ namespace koala::core {
     public:
         using LayerPtr = std::shared_ptr<Layer>;
         void PushLayer(const LayerPtr &layer) {
+            if (!layer) return;
             m_Layers.emplace(m_Layers.begin() + m_InsertIndex, layer);
             m_InsertIndex++;
             layer->OnAttach();
         }
         void PushOverlay(const LayerPtr &layer) {
+            if (!layer) return;
             m_Layers.emplace_back(layer);
             layer->OnAttach();
         }
