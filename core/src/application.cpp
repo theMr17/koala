@@ -4,6 +4,7 @@
 
 #define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h"
+#include "events.h"
 #include "glad/glad.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -56,6 +57,123 @@ namespace koala::core {
 
         glfwMakeContextCurrent(m_Window);
         glfwSwapInterval(1);
+
+        glfwSetWindowUserPointer(m_Window, this);
+
+        auto getApp = [](GLFWwindow *w) { return static_cast<Application *>(glfwGetWindowUserPointer(w)); };
+
+        glfwSetWindowCloseCallback(m_Window, [](GLFWwindow *w) {
+            auto *app = static_cast<Application *>(glfwGetWindowUserPointer(w));
+            if (!app)
+                return;
+            WindowCloseEvent e;
+            app->OnEvent(e);
+            app->DispatchToLayers(e);
+        });
+
+        glfwSetWindowSizeCallback(m_Window, [](GLFWwindow *w, int width, int height) {
+            auto *app = static_cast<Application *>(glfwGetWindowUserPointer(w));
+            if (!app)
+                return;
+            WindowResizeEvent e{width, height};
+            app->OnEvent(e);
+            app->DispatchToLayers(e);
+        });
+
+        glfwSetKeyCallback(m_Window, [](GLFWwindow *w, int key, int scancode, int action, int mods) {
+            auto *app = static_cast<Application *>(glfwGetWindowUserPointer(w));
+            if (!app)
+                return;
+
+            // Respect ImGui capture to avoid double-handling
+            ImGuiIO &io = ImGui::GetIO();
+            const bool capture = io.WantCaptureKeyboard;
+
+            if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+                KeyDownEvent e;
+                e.key = key;
+                e.scancode = scancode;
+                e.mods = mods;
+                e.repeat = (action == GLFW_REPEAT);
+                if (capture)
+                    e.handled = true; // let ImGui consume
+                app->OnEvent(e);
+                app->DispatchToLayers(e);
+            } else if (action == GLFW_RELEASE) {
+                KeyUpEvent e;
+                e.key = key;
+                e.scancode = scancode;
+                e.mods = mods;
+                if (capture)
+                    e.handled = true;
+                app->OnEvent(e);
+                app->DispatchToLayers(e);
+            }
+        });
+
+        glfwSetCharCallback(m_Window, [](GLFWwindow *w, unsigned int codepoint) {
+            auto *app = static_cast<Application *>(glfwGetWindowUserPointer(w));
+            if (!app)
+                return;
+            ImGuiIO &io = ImGui::GetIO();
+            CharEvent e;
+            e.codepoint = codepoint;
+            if (io.WantCaptureKeyboard)
+                e.handled = true;
+            app->OnEvent(e);
+            app->DispatchToLayers(e);
+        });
+
+        glfwSetMouseButtonCallback(m_Window, [](GLFWwindow *w, int button, int action, int mods) {
+            auto *app = static_cast<Application *>(glfwGetWindowUserPointer(w));
+            if (!app)
+                return;
+            ImGuiIO &io = ImGui::GetIO();
+
+            if (action == GLFW_PRESS) {
+                MouseButtonDownEvent e;
+                e.button = button;
+                e.mods = mods;
+                if (io.WantCaptureMouse)
+                    e.handled = true;
+                app->OnEvent(e);
+                app->DispatchToLayers(e);
+            } else if (action == GLFW_RELEASE) {
+                MouseButtonUpEvent e;
+                e.button = button;
+                e.mods = mods;
+                if (io.WantCaptureMouse)
+                    e.handled = true;
+                app->OnEvent(e);
+                app->DispatchToLayers(e);
+            }
+        });
+
+        glfwSetCursorPosCallback(m_Window, [](GLFWwindow *w, double x, double y) {
+            auto *app = static_cast<Application *>(glfwGetWindowUserPointer(w));
+            if (!app)
+                return;
+            MouseMoveEvent e;
+            e.x = x;
+            e.y = y;
+            if (ImGui::GetIO().WantCaptureMouse)
+                e.handled = true;
+            app->OnEvent(e);
+            app->DispatchToLayers(e);
+        });
+
+        glfwSetScrollCallback(m_Window, [](GLFWwindow *w, double dx, double dy) {
+            auto *app = static_cast<Application *>(glfwGetWindowUserPointer(w));
+            if (!app)
+                return;
+            MouseScrollEvent e;
+            e.dx = dx;
+            e.dy = dy;
+            if (ImGui::GetIO().WantCaptureMouse)
+                e.handled = true;
+            app->OnEvent(e);
+            app->DispatchToLayers(e);
+        });
 
         if (!gladLoadGL()) {
             std::cerr << "Failed to initialize GLAD\n";
@@ -170,5 +288,18 @@ namespace koala::core {
         glfwPollEvents();
         m_Running = !glfwWindowShouldClose(m_Window);
     }
+
+    void Application::DispatchToLayers(Event &e) {
+        for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it) {
+            (*it)->OnEvent(e);
+            if (e.handled)
+                break;
+        }
+
+        if (e.GetType() == WindowCloseEvent::Type) {
+            m_Running = false;
+        }
+    }
+
 
 } // namespace koala::core

@@ -1,5 +1,5 @@
 #pragma once
-#include <functional>
+#include <cstdint>
 
 /**
  * Abstract base for all events.
@@ -67,21 +67,74 @@ namespace koala::core {
     };
 
     struct WindowCloseEvent : Event {
-        EventType GetType() const override { return EventType::WindowClose; }
+        static constexpr EventType Type = EventType::WindowClose;
+        EventType GetType() const override { return Type; }
     };
 
     struct WindowResizeEvent : Event {
-        int width, height;
-        EventType GetType() const override { return EventType::WindowResize; }
+        int width = 0, height = 0;
+        WindowResizeEvent() = default;
+        WindowResizeEvent(int w, int h) : width(w), height(h) {}
+        static constexpr EventType Type = EventType::WindowResize;
+        EventType GetType() const override { return Type; }
     };
 
+    struct KeyDownEvent : Event {
+        int key = 0;
+        int scancode = 0;
+        int mods = 0;
+        bool repeat = false;
+        static constexpr EventType Type = EventType::KeyDown;
+        EventType GetType() const override { return Type; };
+    };
+
+    struct KeyUpEvent : Event {
+        int key = 0;
+        int scancode = 0;
+        int mods = 0;
+        static constexpr EventType Type = EventType::KeyUp;
+        EventType GetType() const override { return Type; };
+    };
+
+    struct CharEvent : Event {
+        unsigned int codepoint = 0;
+        static constexpr EventType Type = EventType::Char;
+        EventType GetType() const override { return Type; };
+    };
+
+    struct MouseButtonDownEvent : Event {
+        int button = 0;
+        int mods = 0;
+        static constexpr EventType Type = EventType::MouseButtonDown;
+        EventType GetType() const override { return Type; };
+    };
+
+    struct MouseButtonUpEvent : Event {
+        int button = 0;
+        int mods = 0;
+        static constexpr EventType Type = EventType::MouseButtonUp;
+        EventType GetType() const override { return Type; };
+    };
+
+    struct MouseMoveEvent : Event {
+        double x = 0.0, y = 0.0;
+        static constexpr EventType Type = EventType::MouseMove;
+        EventType GetType() const override { return Type; };
+    };
+
+    struct MouseScrollEvent : Event {
+        double dx = 0.0, dy = 0.0;
+        static constexpr EventType Type = EventType::MouseScroll;
+        EventType GetType() const override { return Type; };
+    };
 
     class EventDispatcher {
     public:
         explicit EventDispatcher(Event &e) : m_Event(e) {}
+
         template<typename T, typename F>
         bool Dispatch(const F &func) {
-            if (m_Event.GetType() == T{}.GetType()) {
+            if (m_Event.GetType() == T::Type) {
                 m_Event.handled = func(static_cast<T &>(m_Event));
                 return true;
             }
