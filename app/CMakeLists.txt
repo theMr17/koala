@@ -6,4 +6,4 @@ add_executable(${PROJECT_NAME} ${APP_SRC})
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE network core)
+target_link_libraries(${PROJECT_NAME} PRIVATE storage network core)

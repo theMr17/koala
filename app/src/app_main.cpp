@@ -2,6 +2,7 @@
 
 #include "application.h"
 #include "http_client.h"
+#include "storage.h"
 
 namespace koala::core {
     int runWindowDemo();
@@ -33,6 +34,8 @@ int main() {
 
     std::cout << "Status: " << resp.status_code << "\n";
     std::cout << "Body:\n" << resp.body << "\n";
+
+    koala::storage::print();
 
     koala::core::Application application;
     application.Run();
