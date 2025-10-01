@@ -35,7 +35,16 @@ int main() {
     std::cout << "Status: " << resp.status_code << "\n";
     std::cout << "Body:\n" << resp.body << "\n";
 
-    koala::storage::print();
+    // Store request + response in a Postman-like hierarchy
+    // e.g. project_storage/Posts/GetPost.reqres
+    koala::storage::saveReqRes(
+        "project_storage",     // root
+        "Posts",               // folder (like a Postman folder)
+        "GetPost.reqres",      // file name
+        req, resp
+    );
+
+    std::cout << "Saved request/response under project_storage/Posts/GetPost.reqres\n";
 
     koala::core::Application application;
     application.Run();
