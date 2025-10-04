@@ -10,9 +10,6 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-#define WINDOW_WIDTH 1280
-#define WINDOW_HEIGHT 720
-
 namespace koala::core {
     /**
      * @brief Logs a GLFW error message to standard error.
@@ -27,28 +24,29 @@ namespace koala::core {
     /**
      * @brief Constructs the application and initializes the platform, OpenGL, and ImGui subsystems.
      *
-     * Initializes GLFW, configures an OpenGL 4.6 core profile context, creates the main window,
-     * loads OpenGL function pointers via GLAD, and initializes Dear ImGui with keyboard navigation
-     * and docking enabled using the GLFW and OpenGL3 backends.
+     * Initializes GLFW, configures an OpenGL core profile context, creates the main window using
+     * properties supplied by the application, loads OpenGL function pointers via GLAD, and
+     * initializes Dear ImGui with keyboard navigation and docking enabled using the GLFW and
+     * OpenGL3 backends.
      *
      * @note On initialization failure (GLFW, window creation, or GLAD), the function logs an error,
      *       performs necessary GLFW cleanup, and calls exit(1) to terminate the process.
      */
-    Application::Application() {
+    Application::Application(const ApplicationSpecs &props) : m_Specs(props) {
         glfwSetErrorCallback(glfwErrorCallback);
         if (!glfwInit()) {
             std::cerr << "Failed to initialize GLFW\n";
             exit(1);
         }
 
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, m_Specs.gl_major);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, m_Specs.gl_minor);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #ifdef __APPLE__
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-        m_Window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Koala", nullptr, nullptr);
+        m_Window = glfwCreateWindow(m_Specs.width, m_Specs.height, m_Specs.title, nullptr, nullptr);
         if (!m_Window) {
             std::cerr << "Failed to create window\n";
             glfwTerminate();
@@ -56,7 +54,7 @@ namespace koala::core {
         }
 
         glfwMakeContextCurrent(m_Window);
-        glfwSwapInterval(1);
+        glfwSwapInterval(m_Specs.vsync ? 1 : 0);
 
         glfwSetWindowUserPointer(m_Window, this);
 

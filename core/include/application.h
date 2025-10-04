@@ -48,9 +48,18 @@ struct GLFWwindow;
  * Poll platform events and dispatch them to the application and its layers.
  */
 namespace koala::core {
+    struct ApplicationSpecs {
+        int width = 1280;
+        int height = 720;
+        const char *title = "Application";
+        int gl_major = 4;
+        int gl_minor = 6;
+        bool vsync = true;
+    };
+
     class Application {
     public:
-        Application();
+        explicit Application(const ApplicationSpecs &props = ApplicationSpecs());
         virtual ~Application();
         void Run();
         void PushLayer(const std::shared_ptr<Layer> &layer) { m_LayerStack.PushLayer(layer); }
@@ -70,5 +79,6 @@ namespace koala::core {
         GLFWwindow *m_Window = nullptr;
         LayerStack m_LayerStack;
         bool m_Running = true;
+        ApplicationSpecs m_Specs{};
     };
 } // namespace koala::core
