@@ -5,6 +5,9 @@
 #include <map>
 #include <optional>
 #include <string>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 namespace koala::core::util {
     /**
@@ -103,7 +106,6 @@ namespace koala::core::util {
     }
 
 #ifdef _WIN32
-#include <windows.h>
     /**
      * Convert UTF-8 std::string to std::wstring (Windows helper).
      */
