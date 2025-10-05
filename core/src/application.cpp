@@ -238,8 +238,6 @@ namespace koala::core {
                 layer->OnRender();
             }
 
-            ImGui::ShowDemoWindow();
-
             EndImGuiFrame();
         }
     }
