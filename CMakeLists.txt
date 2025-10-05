@@ -3,7 +3,10 @@ project(koala_platform)
 
 set(CMAKE_CXX_STANDARD 20)
 
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "")
+
 # Add subdirectories
+add_subdirectory(storage)
 add_subdirectory(network)
 add_subdirectory(core)
 add_subdirectory(app)
